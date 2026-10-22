@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>look club · admin</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0b1427">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .card h3 { font-family: var(--display); font-weight: 400; font-size: 22px; margin: 0 0 6px; }
+    .card p { color: var(--muted); margin: 0 0 10px; }
+    .big-prompt { font-family: var(--display); font-size: 34px; line-height: 1.1; margin: 4px 0 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; font-weight: 400; color: var(--muted); font-size: 12px; letter-spacing: 1px; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+    td { padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    td .linkish { margin-right: 10px; }
+    .dim { color: var(--faint); }
+    .ok { color: #9ff0c9; }
+    .no { color: #ffb2b2; }
+    textarea.field { min-height: 220px; resize: vertical; line-height: 1.7; }
+    select.field { appearance: none; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 0 12px; }
+    .form-grid label { font-size: 12px; color: var(--muted); letter-spacing: 1px; display: block; margin-top: 12px; }
+    .form-grid label .field { margin-top: 4px; }
+    .subs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .subs figure { margin: 0; }
+    .subs img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; display: block; }
+    .subs figcaption { font-size: 12px; color: var(--muted); padding-top: 6px; }
+    .check { display: inline-flex; gap: 8px; align-items: center; color: var(--muted); font-size: 13px; margin-top: 12px; }
+    .table-wrap { overflow-x: auto; }
+    @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <canvas id="sky" aria-hidden="true"></canvas>
+  <div class="page">
+    <header class="top">
+      <a class="logo" href="/"><span class="spark">✦</span>admin</a>
+      <div class="top-right"><a class="pill quiet" href="/">the site</a><button class="pill quiet" id="logout">lock</button></div>
+    </header>
+    <main id="app"></main>
+  </div>
+  <script type="module" src="/admin.js"></script>
+</body>
+</html>

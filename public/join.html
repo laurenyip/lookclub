@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>join look club</title>
+  <meta name="description" content="you’re invited: one prompt a week, everyone goes looking, one shared gallery.">
+  <meta name="theme-color" content="#0b1427">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/fonts/moto.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .join { max-width: 620px; padding: 12vh 0 6vh; }
+    .join .prompt { font-size: clamp(44px, 8vw, 84px); }
+    .join p.lede { color: var(--muted); font-size: 16px; max-width: 520px; }
+    .join form { margin-top: 30px; max-width: 440px; }
+    .names { margin-top: 26px; color: var(--muted); font-size: 13px; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 46px; max-width: 720px; }
+    .steps div { border-top: 1px solid var(--line); padding-top: 12px; color: var(--muted); font-size: 13px; }
+    .steps b { display: block; font-family: var(--display); font-weight: 400; font-size: 19px; color: #fff; margin-bottom: 4px; }
+    @media (max-width: 640px) { .steps { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <canvas id="sky" aria-hidden="true"></canvas>
+  <div class="page">
+    <header class="top"><a class="logo" href="/"><span class="spark">✦</span><span id="circleName">look club</span></a></header>
+    <main id="app"></main>
+  </div>
+  <script type="module">
+    import { esc, startSky, startCursor, api, storage, toast } from '/common.js'
+    startSky()
+    startCursor()
+    const app = document.getElementById('app')
+    const code = new URLSearchParams(location.search).get('code') || ''
+
+    const info = await api(`/api/invite?code=${encodeURIComponent(code)}`).catch(() => ({ ok: false }))
+    if (info.circleName) document.getElementById('circleName').textContent = info.circleName
+
+    if (!info.ok) {
+      app.innerHTML = `<div class="notice"><div class="label"><span class="star">✦</span>hmm</div>
+        <h1>that invite link isn’t working</h1><p>ask whoever sent it for a fresh one.</p></div>`
+    } else {
+      const names = info.names
+      app.innerHTML = `
+        <section class="join">
+          <div class="label"><span class="star">✦</span>you’re invited</div>
+          <h1 class="prompt">look at the same sky with us</h1>
+          <p class="lede">once a week everyone gets the same little prompt — like “something blue and old.” you go looking, send one photo, and when the gallery opens you see how differently everyone saw it.</p>
+          <form id="f">
+            <input class="field" name="name" required maxlength="40" placeholder="your name (what friends call you)" autocomplete="given-name">
+            <input class="field" name="email" type="email" required placeholder="your email — prompts arrive here" autocomplete="email">
+            <div class="row"><button class="btn big" data-cursor="join">join the hunt ✦</button></div>
+          </form>
+          ${names.length ? `<div class="names">already looking up: ${names.slice(0, 12).map(esc).join(', ')}${names.length > 12 ? ` + ${names.length - 12} more` : ''}</div>` : ''}
+          <div class="steps">
+            <div><b>a prompt arrives</b>by email, once a week.</div>
+            <div><b>you go looking</b>reply with one photo. a line of text becomes your caption.</div>
+            <div><b>the gallery opens</b>everyone’s photos appear at once.</div>
+          </div>
+        </section>`
+      document.getElementById('f').onsubmit = async (e) => {
+        e.preventDefault()
+        const fd = new FormData(e.target)
+        const btn = e.target.querySelector('button')
+        btn.disabled = true
+        btn.textContent = 'adding you…'
+        try {
+          const res = await api('/api/join', { method: 'POST', body: { code, name: fd.get('name'), email: fd.get('email') } })
+          if (res.token) {
+            storage('sky-token', res.token)
+            app.innerHTML = `<div class="notice"><div class="label"><span class="star">✦</span>welcome</div>
+              <h1>you’re in</h1><p>we just emailed you your personal link — keep that email, it’s your key.</p>
+              <p>${esc(info.schedule)}</p><p style="margin-top:28px"><a class="btn big" href="/" data-cursor="let’s go">see the sky</a></p></div>`
+          } else {
+            app.innerHTML = `<div class="notice"><div class="label"><span class="star">✦</span>hello again</div>
+              <h1>you’re already in</h1><p>we just re-sent your personal link to that email. open it and you’re back.</p></div>`
+          }
+        } catch (err) {
+          toast(err.message)
+          btn.disabled = false
+          btn.textContent = 'join the hunt ✦'
+        }
+      }
+    }
+  </script>
+</body>
+</html>

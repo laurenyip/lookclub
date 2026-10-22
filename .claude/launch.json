@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "lookclub", "runtimeExecutable": "node", "runtimeArgs": ["dev-server.mjs"], "port": 8888 }
+  ]
+}
