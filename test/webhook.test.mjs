@@ -87,4 +87,12 @@ test('signed webhook → photo saved → threaded reply sent', async () => {
   // resend retries the same webhook: nothing doubles up
   const again = await (await post('/api/inbound', raw, { 'svix-id': 'msg_9', 'svix-timestamp': ts, 'svix-signature': `v1,${sig}` })).json()
   assert.equal(again.result, 'duplicate')
+
+  // wiping a test week leaves a clean slate, and the next week is week 1 again
+  assert.equal((await post('/api/admin/round/delete', { id: view.current.id }, admin)).status, 200)
+  const after = await (await handle(new Request('http://localhost/api/admin', { headers: admin }))).json()
+  assert.equal(after.rounds.length, 0)
+  assert.equal(after.current, null)
+  const next = await (await post('/api/admin/start', { prompt: 'for real now' }, admin)).json()
+  assert.equal(next.round.number, 1)
 })

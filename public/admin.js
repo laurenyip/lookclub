@@ -174,8 +174,8 @@ function render() {
   ${
     S.rounds.length
       ? `<section><div class="section-head"><h2>every week</h2></div><div class="card"><div class="table-wrap"><table>
-      <tr><th>week</th><th>prompt</th><th>photos</th><th>status</th></tr>
-      ${S.rounds.map((r) => `<tr><td>${r.number}</td><td><a href="/?w=${encodeURIComponent(r.id)}">${esc(r.prompt)}</a></td><td>${r.status === 'open' ? '—' : r.count}</td><td>${r.status}</td></tr>`).join('')}
+      <tr><th>week</th><th>prompt</th><th>photos</th><th>status</th><th></th></tr>
+      ${S.rounds.map((r) => `<tr><td>${r.number}</td><td><a href="/?w=${encodeURIComponent(r.id)}">${esc(r.prompt)}</a></td><td>${r.status === 'open' ? '—' : r.count}</td><td>${r.status}</td><td><button class="linkish" data-delweek="${esc(r.id)}" data-n="${r.number}">delete</button></td></tr>`).join('')}
     </table></div></div></section>`
       : ''
   }`
@@ -221,6 +221,12 @@ function bind() {
   )
   document.querySelectorAll('[data-delsub]').forEach((b) => (b.onclick = () => confirm('remove this photo?') && act(() => call('/api/admin/submission/remove', { roundId: S.current.id, playerId: b.dataset.delsub }), 'removed')))
 
+  document.querySelectorAll('[data-delweek]').forEach(
+    (b) =>
+      (b.onclick = () =>
+        confirm(`delete week ${b.dataset.n} and all its photos? (handy after a test run — this can’t be undone)`) &&
+        act(() => call('/api/admin/round/delete', { id: b.dataset.delweek }), 'week deleted'))
+  )
   $('addForm').onsubmit = (e) => {
     e.preventDefault()
     const fd = new FormData(e.target)
