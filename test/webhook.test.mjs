@@ -31,6 +31,10 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'POST' && req.url === '/emails/batch') {
     let body = ''
     for await (const c of req) body += c
+    if (body.includes('blocked@example.com')) {
+      res.writeHead(403, { 'Content-Type': 'application/json' })
+      return res.end(JSON.stringify({ statusCode: 403, name: 'validation_error', message: 'The mail.example.com domain is not verified.' }))
+    }
     sent.push(...JSON.parse(body))
     return send({ data: [{ id: 'out_1' }] })
   }
@@ -95,4 +99,10 @@ test('signed webhook → photo saved → threaded reply sent', async () => {
   assert.equal(after.current, null)
   const next = await (await post('/api/admin/start', { prompt: 'for real now' }, admin)).json()
   assert.equal(next.round.number, 1)
+})
+
+test('when resend refuses, admin sees why', async () => {
+  const res = await post('/api/admin/player', { name: 'blocked', email: 'blocked@example.com' }, { 'x-admin-key': 'test-admin-key' })
+  assert.equal(res.status, 502)
+  assert.match((await res.json()).error, /resend says: The mail.example.com domain is not verified/)
 })
